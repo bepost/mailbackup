@@ -3,19 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using CommandLine.Text;
+using S22.Imap;
 
 namespace MailBackup
 {
     public sealed class Options
     {
-        [Option('i', "imap", Required = true, HelpText = "The imapserver to sync from. Use semicolon for portnumber.")]
+        [Option('i', "imap", Required = true, HelpText = "The imapserver to sync from.")]
         public string ImapServer { get; set; }
+
+        [Option( "port", Required = false, HelpText = "The port of the imapserver. Default: 143, or 993 when SSL is chosen.")]
+        public int ImapPort { get; set; } = 0;
+
+        [Option( "ssl", Required = false, HelpText = "Flag SSL should be used.")]
+        public bool ImapSsl { get; set; }= false;
 
         [Option('p', "password", Required = false, HelpText = "The password to sign into the imap server.")]
         public string Password { get; set; }
 
         [Option('t', "target", Required = true, HelpText = "The targetfolder to synchronize to.")]
         public string Target { get; set; }
+
+        [Option('m', "method", Required = false, HelpText = "The authentication method to use. [ Login (default), Plain, CramMd5, DigestMd5, OAuth, OAuth2, Ntlm, Ntlmv2, NtlmOverSspi, Gssapi, ScramSha1, Srp ]")]
+        public AuthMethod AuthMethod { get; set; } = AuthMethod.Login;
 
         [Option('d', "delete", Required = false, DefaultValue = false, HelpText = "Delete messages that are deleted from the server.")]
         public bool Delete { get; set; }

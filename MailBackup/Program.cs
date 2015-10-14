@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using S22.Imap;
 
 namespace MailBackup
 {
@@ -40,7 +41,20 @@ namespace MailBackup
 
         private void Run()
         {
-            throw new NotImplementedException();
+            if (Options.ImapPort == 0)
+                Options.ImapPort = Options.ImapSsl ? 993 : 143;
+
+            if (Options.Password==null)
+            {
+                Console.WriteLine("Enter password:");
+                Options.Password=Console.ReadLine();
+            }
+            
+            // The default port for IMAP over SSL is 993.
+            using (ImapClient client = new ImapClient(Options.ImapServer, Options.ImapPort, Options.UserName, Options.Password, Options.AuthMethod, Options.ImapSsl))
+            {
+                Console.WriteLine("We are connected!");
+            }
         }
     }
 }
