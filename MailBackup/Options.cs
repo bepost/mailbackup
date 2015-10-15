@@ -33,6 +33,9 @@ namespace MailBackup
         [Option('u', "username", Required = false, HelpText = "The username to sign into the imap server.")]
         public string UserName { get; set; }
 
+        [Option('v', "verbose", Required = false, HelpText = "Verbose output.")]
+        public bool Verbose { get; set; }
+
         [HelpOption('?', "help")]
         public string GetUsage()
         {
