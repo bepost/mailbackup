@@ -30,7 +30,7 @@ namespace MailBackup
         [Option('d', "delete", Required = false, DefaultValue = false, HelpText = "Delete messages that are deleted from the server.")]
         public bool Delete { get; set; }
 
-        [Option('u', "username", Required = false, HelpText = "The username to sign into the imap server.")]
+        [Option('u', "username", Required = true, HelpText = "The username to sign into the imap server.")]
         public string UserName { get; set; }
 
         [Option('v', "verbose", Required = false, HelpText = "Verbose output.")]
