@@ -63,8 +63,16 @@ namespace MailBackup
                     targetDirectory.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName) // Descending to ensure child folders are first
                                    .Where(dir => !mailboxes.Any(m => IsSameDirectory(Path.Combine(targetDirectory.FullName, m), dir.FullName))))
                 {
-                    Log.Verbose($"Mailbox {dir} is depricated.");
-                    dir.Delete(true);
+                    if (Options.Delete)
+                    {
+                        Log.Verbose($"Deleting depricated mailbox {dir}.");
+                        dir.Delete(true);
+                    }
+                    else
+                    {
+                        Log.Verbose($"Mailbox {dir} is depricated.");
+                    }
+
                 }
 
                 foreach (var mailbox in mailboxes)
@@ -97,7 +105,7 @@ namespace MailBackup
                     continue;
                 }
 
-                if (!onlineUids.Contains(fileUid))
+                if (Options.Delete && !onlineUids.Contains(fileUid))
                 {
                     Log.Verbose($"Deleting obsolete message '{file.Name}'...");
                     file.Delete();

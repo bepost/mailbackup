@@ -42,10 +42,6 @@ namespace MailBackup
             return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
         }
 
-        private Options()
-        {
-        }
-
         public static Options Parse(string[] args)
         {
             var options = new Options();
