@@ -46,6 +46,10 @@
       <HintPath>..\packages\S22.Imap.3.6.0.0\lib\net40\S22.Imap.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="S22.Mail, Version=1.0.4668.31819, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\S22.Mail.1.0.4668.31819\lib\net45\S22.Mail.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,7 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Log.cs" />
-    <Compile Include="MailMessageWriter.cs" />
     <Compile Include="Operation.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />

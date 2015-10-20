@@ -3,33 +3,22 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using S22.Imap;
+using S22.Mail;
 
 namespace MailBackup
 {
     public sealed class Operation
     {
-        private MailMessageWriter _mailMessageWriter;
-
         public Operation(Options options)
         {
             this.Options = options;
         }
 
         private static char[] InvalidFileNameChars => Path.GetInvalidFileNameChars();
-        private MailMessageWriter MailMessageWriter => this._mailMessageWriter ?? (this._mailMessageWriter = new MailMessageWriter());
         private Options Options { get; }
-
-        private static string CleanSubject(string source)
-        {
-            // Replace any whitespace to single space
-            source = Regex.Replace(source, @"\s+", " ");
-            return new string(source.Where(c => !InvalidFileNameChars.Contains(c)).ToArray());
-        }
-
-        private static bool IsSameDirectory(string pathA, string pathB)
-            => Path.GetFullPath(pathA).TrimEnd('\\').Equals(Path.GetFullPath(pathB).TrimEnd('\\'), StringComparison.InvariantCultureIgnoreCase);
 
         public void Run()
         {
@@ -63,16 +52,13 @@ namespace MailBackup
                     targetDirectory.GetDirectories("*.*", SearchOption.AllDirectories).OrderByDescending(d => d.FullName) // Descending to ensure child folders are first
                                    .Where(dir => !mailboxes.Any(m => IsSameDirectory(Path.Combine(targetDirectory.FullName, m), dir.FullName))))
                 {
-                    if (Options.Delete)
+                    if (this.Options.Delete)
                     {
                         Log.Verbose($"Deleting depricated mailbox {dir}.");
                         dir.Delete(true);
                     }
                     else
-                    {
                         Log.Verbose($"Mailbox {dir} is depricated.");
-                    }
-
                 }
 
                 foreach (var mailbox in mailboxes)
@@ -83,6 +69,16 @@ namespace MailBackup
             }
             Log.Info("Disconnected.");
         }
+
+        private static string CleanSubject(string source)
+        {
+            // Replace any whitespace to single space
+            source = Regex.Replace(source, @"\s+", " ");
+            return new string(source.Where(c => !InvalidFileNameChars.Contains(c)).ToArray());
+        }
+
+        private static bool IsSameDirectory(string pathA, string pathB)
+            => Path.GetFullPath(pathA).TrimEnd('\\').Equals(Path.GetFullPath(pathB).TrimEnd('\\'), StringComparison.InvariantCultureIgnoreCase);
 
         private void SynchronizeMailbox(ImapClient client, string mailbox, DirectoryInfo target)
         {
@@ -105,7 +101,7 @@ namespace MailBackup
                     continue;
                 }
 
-                if (Options.Delete && !onlineUids.Contains(fileUid))
+                if (this.Options.Delete && !onlineUids.Contains(fileUid))
                 {
                     Log.Verbose($"Deleting obsolete message '{file.Name}'...");
                     file.Delete();
@@ -119,8 +115,10 @@ namespace MailBackup
             foreach (var onlineUid in onlineUids)
             {
                 var message = client.GetMessage(onlineUid, FetchOptions.Normal, false, mailbox);
+                if (message.From == null)
+                    message.From = new MailAddress(Options.UserName);
                 var fileName = $"{onlineUid:x8} {CleanSubject(message.Subject)}.eml";
-                this.MailMessageWriter.WriteEml(message, Path.Combine(target.FullName, fileName));
+                message.Save(Path.Combine(target.FullName, fileName));
                 Log.Verbose($"Fetched message '{fileName}'");
             }
         }
