@@ -17,13 +17,25 @@ namespace MailBackup
                 var program = new Operation(options);
                 program.Run();
             }
+#if !DEBUG
+            catch (Exception ex)
+            {
+                Log.LogVerbose = true;
+
+                Log.Error($"FATAL: {ex.Message}");
+                Exception inner = ex;
+                while ((inner = inner.InnerException) != null)
+                    Log.Error($"INNER: {ex.Message}");
+
+                Log.Verbose($"{ex.StackTrace}");
+            }
+#else
             finally
             {
-#if DEBUG
                 Console.WriteLine("Press any key...");
                 Console.ReadKey(true);
-#endif
             }
+#endif
         }
     }
 }
